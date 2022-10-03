@@ -1,5 +1,5 @@
 <script lang="ts">
-	export let answer: String;
+	export let value: String;
 </script>
 
-<p>The answer is {answer}</p>
+<td>{value}</td>

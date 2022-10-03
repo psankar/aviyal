@@ -1,5 +1,5 @@
 <script>
-	import Nested from '../components/tile.svelte';
+	import Board from '../components/board.svelte';
 </script>
 
-<Nested answer={"42"}/>
+<Board tiles={['hello', 'world']} />
