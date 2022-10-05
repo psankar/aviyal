@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import Tile, { blankButtonColor, defaultButtonColor } from './tile.svelte';
+	import Tile, { blankTile, clickableTile, defaultTile } from './tile.svelte';
 
 	let state: any[];
 	let blankX: number, blankY: number;
@@ -26,20 +26,16 @@
 			let row = [];
 
 			for (let j = 0; j < inputStr[i].length; j++) {
-				let disabled = true;
-				let btnColor = defaultButtonColor;
 				if (
 					(i === blankX && (j === blankY - 1 || j === blankY + 1)) ||
 					(j === blankY && (i === blankX - 1 || i === blankX + 1))
 				) {
-					disabled = false;
+					row.push({ letter: inputStr[i][j], disabled: false, tileType: clickableTile });
+				} else if (i == blankX && j == blankY) {
+					row.push({ letter: inputStr[i][j], disabled: true, tileType: blankTile });
+				} else {
+					row.push({ letter: inputStr[i][j], disabled: true, tileType: defaultTile });
 				}
-
-				if (i == blankX && j == blankY) {
-					btnColor = blankButtonColor;
-				}
-
-				row.push({ letter: inputStr[i][j], disabled: disabled, btnColor: btnColor });
 			}
 			state.push(row);
 		}
@@ -48,7 +44,7 @@
 	const recalculate = (curX: number, curY: number) => {
 		let newState = structuredClone(state);
 		newState[blankX][blankY] = newState[curX][curY];
-		newState[curX][curY] = { letter: ' ', disabled: true, btnColor: blankButtonColor };
+		newState[curX][curY] = { letter: ' ', disabled: true, tileType: blankTile };
 
 		blankX = curX;
 		blankY = curY;
@@ -60,12 +56,13 @@
 					(j === blankY && (i === blankX - 1 || i === blankX + 1))
 				) {
 					newState[i][j].disabled = false;
+					newState[i][j].tileType = clickableTile;
+				} else if (i == blankX && j == blankY) {
+					newState[i][j].disabled = true;
+					newState[i][j].tileType = blankTile;
 				} else {
 					newState[i][j].disabled = true;
-				}
-
-				if (i != blankX || j != blankY) {
-					newState[i][j].btnColor = defaultButtonColor;
+					newState[i][j].tileType = defaultTile;
 				}
 			}
 		}
@@ -83,7 +80,7 @@
 						<Tile
 							letter={j.letter}
 							disabled={j.disabled}
-							btnColor={j.btnColor}
+							tileType={j.tileType}
 							{curX}
 							{curY}
 							cb={recalculate}
