@@ -1,6 +1,9 @@
-<script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+<script context="module">
+	export const blankButtonColor = 'purple';
+	export const defaultButtonColor = 'lightseagreen';
+</script>
 
+<script lang="ts">
 	export let letter: string;
 	export let disabled: boolean;
 	export let btnColor: string;

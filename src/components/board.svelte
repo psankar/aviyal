@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from 'svelte';
-	import Tile from './tile.svelte';
+	import { onMount } from 'svelte';
+	import Tile, { blankButtonColor, defaultButtonColor } from './tile.svelte';
 
 	let state: any[];
 	let blankX: number, blankY: number;
@@ -27,7 +27,7 @@
 
 			for (let j = 0; j < inputStr[i].length; j++) {
 				let disabled = true;
-				let btnColor = 'lightseagreen';
+				let btnColor = defaultButtonColor;
 				if (
 					(i === blankX && (j === blankY - 1 || j === blankY + 1)) ||
 					(j === blankY && (i === blankX - 1 || i === blankX + 1))
@@ -36,7 +36,7 @@
 				}
 
 				if (i == blankX && j == blankY) {
-					btnColor = 'purple';
+					btnColor = blankButtonColor;
 				}
 
 				row.push({ letter: inputStr[i][j], disabled: disabled, btnColor: btnColor });
@@ -47,11 +47,8 @@
 
 	const recalculate = (curX: number, curY: number) => {
 		let newState = structuredClone(state);
-		console.log(curX);
-		console.log(newState[curX]);
-		console.log(newState[curX][curY]);
 		newState[blankX][blankY] = newState[curX][curY];
-		newState[curX][curY] = { letter: ' ', disabled: true, btnColor: 'lightseagreen' };
+		newState[curX][curY] = { letter: ' ', disabled: true, btnColor: blankButtonColor };
 
 		blankX = curX;
 		blankY = curY;
@@ -67,10 +64,8 @@
 					newState[i][j].disabled = true;
 				}
 
-				if (i == blankX && j == blankY) {
-					newState[i][j].btnColor = 'purple';
-				} else {
-					newState[i][j].btnColor = 'lightseagreen';
+				if (i != blankX || j != blankY) {
+					newState[i][j].btnColor = defaultButtonColor;
 				}
 			}
 		}
