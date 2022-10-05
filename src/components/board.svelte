@@ -30,11 +30,11 @@
 					(i === blankX && (j === blankY - 1 || j === blankY + 1)) ||
 					(j === blankY && (i === blankX - 1 || i === blankX + 1))
 				) {
-					row.push({ letter: inputStr[i][j], disabled: false, tileType: clickableTile });
+					row.push({ letter: inputStr[i][j], tileType: clickableTile });
 				} else if (i == blankX && j == blankY) {
-					row.push({ letter: inputStr[i][j], disabled: true, tileType: blankTile });
+					row.push({ letter: inputStr[i][j], tileType: blankTile });
 				} else {
-					row.push({ letter: inputStr[i][j], disabled: true, tileType: defaultTile });
+					row.push({ letter: inputStr[i][j], tileType: defaultTile });
 				}
 			}
 			state.push(row);
@@ -44,7 +44,7 @@
 	const recalculate = (curX: number, curY: number) => {
 		let newState = structuredClone(state);
 		newState[blankX][blankY] = newState[curX][curY];
-		newState[curX][curY] = { letter: ' ', disabled: true, tileType: blankTile };
+		newState[curX][curY] = { letter: ' ', tileType: blankTile };
 
 		blankX = curX;
 		blankY = curY;
@@ -55,13 +55,10 @@
 					(i === blankX && (j === blankY - 1 || j === blankY + 1)) ||
 					(j === blankY && (i === blankX - 1 || i === blankX + 1))
 				) {
-					newState[i][j].disabled = false;
 					newState[i][j].tileType = clickableTile;
 				} else if (i == blankX && j == blankY) {
-					newState[i][j].disabled = true;
 					newState[i][j].tileType = blankTile;
 				} else {
-					newState[i][j].disabled = true;
 					newState[i][j].tileType = defaultTile;
 				}
 			}
@@ -77,14 +74,7 @@
 			<tr>
 				{#each i as j, curY}
 					<td>
-						<Tile
-							letter={j.letter}
-							disabled={j.disabled}
-							tileType={j.tileType}
-							{curX}
-							{curY}
-							cb={recalculate}
-						/>
+						<Tile letter={j.letter} tileType={j.tileType} {curX} {curY} cb={recalculate} />
 					</td>
 				{/each}
 			</tr>

@@ -6,14 +6,13 @@
 
 <script lang="ts">
 	export let letter: string;
-	export let disabled: boolean;
 	export let tileType: string;
 	export let curX: number;
 	export let curY: number;
 	export let cb: any;
 </script>
 
-<button class={tileType} {disabled} on:click={() => cb(curX, curY)}>
+<button class={tileType} disabled={tileType !== clickableTile} on:click={() => cb(curX, curY)}>
 	{letter}
 </button>
 
