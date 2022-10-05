@@ -4,6 +4,7 @@
 
 	let state: any[];
 	let blankX: number, blankY: number;
+	let gridSize: number;
 
 	onMount(async () => {
 		await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -16,7 +17,7 @@
 			['o', 'd', 't', 'd', ' ']
 		];
 
-		const gridSize = inputStr.length;
+		gridSize = inputStr.length;
 		blankX = gridSize - 1;
 		blankY = gridSize - 1;
 
@@ -42,6 +43,10 @@
 	});
 
 	const recalculate = (curX: number, curY: number) => {
+		if (curX < 0 || curY < 0 || curX >= gridSize || curY >= gridSize) {
+			return;
+		}
+
 		let newState = structuredClone(state);
 		newState[blankX][blankY] = newState[curX][curY];
 		newState[curX][curY] = { letter: ' ', tileType: blankTile };
@@ -63,10 +68,28 @@
 				}
 			}
 		}
-
 		state = newState;
 	};
+
+	function handleKeydown(event: KeyboardEvent) {
+		switch (event.key) {
+			case 'ArrowLeft':
+				recalculate(blankX, blankY + 1);
+				break;
+			case 'ArrowUp':
+				recalculate(blankX + 1, blankY);
+				break;
+			case 'ArrowRight':
+				recalculate(blankX, blankY - 1);
+				break;
+			case 'ArrowDown':
+				recalculate(blankX - 1, blankY);
+				break;
+		}
+	}
 </script>
+
+<svelte:window on:keydown={handleKeydown} />
 
 {#if state}
 	<table class="board">

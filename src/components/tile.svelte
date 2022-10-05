@@ -19,7 +19,7 @@
 <style>
 	.default-tile {
 		color: white;
-		background: lightseagreen;
+		background: purple;
 		font-family: monospace;
 		width: 108px;
 		height: 108px;
@@ -30,7 +30,7 @@
 	}
 	.clickable-tile {
 		color: white;
-		background: lightseagreen;
+		background: purple;
 		font-family: monospace;
 		width: 108px;
 		height: 108px;
