@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import Tile from './tile.svelte';
 
 	let state: any[];
-	let blankX, blankY: number;
+	let blankX: number, blankY: number;
 
 	onMount(async () => {
 		await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -33,6 +33,9 @@
 					(j === blankY && (i === blankX - 1 || i === blankX + 1))
 				) {
 					disabled = false;
+				}
+
+				if (i == blankX && j == blankY) {
 					btnColor = 'purple';
 				}
 
@@ -41,15 +44,55 @@
 			state.push(row);
 		}
 	});
+
+	const recalculate = (curX: number, curY: number) => {
+		let newState = structuredClone(state);
+		console.log(curX);
+		console.log(newState[curX]);
+		console.log(newState[curX][curY]);
+		newState[blankX][blankY] = newState[curX][curY];
+		newState[curX][curY] = { letter: ' ', disabled: true, btnColor: 'lightseagreen' };
+
+		blankX = curX;
+		blankY = curY;
+
+		for (let i: number = 0; i < newState.length; i++) {
+			for (let j: number = 0; j < newState[i].length; j++) {
+				if (
+					(i === blankX && (j === blankY - 1 || j === blankY + 1)) ||
+					(j === blankY && (i === blankX - 1 || i === blankX + 1))
+				) {
+					newState[i][j].disabled = false;
+				} else {
+					newState[i][j].disabled = true;
+				}
+
+				if (i == blankX && j == blankY) {
+					newState[i][j].btnColor = 'purple';
+				} else {
+					newState[i][j].btnColor = 'lightseagreen';
+				}
+			}
+		}
+
+		state = newState;
+	};
 </script>
 
 {#if state}
 	<table class="board">
-		{#each state as i}
+		{#each state as i, curX}
 			<tr>
-				{#each i as j}
+				{#each i as j, curY}
 					<td>
-						<Tile letter={j.letter} disabled={j.disabled} btnColor={j.btnColor} />
+						<Tile
+							letter={j.letter}
+							disabled={j.disabled}
+							btnColor={j.btnColor}
+							{curX}
+							{curY}
+							cb={recalculate}
+						/>
 					</td>
 				{/each}
 			</tr>
