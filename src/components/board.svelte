@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Tile, { blankTile, clickableTile, defaultTile } from './tile.svelte';
+	import sha256 from 'crypto-js/sha256';
 
 	let state: any[];
 	let blankX: number, blankY: number;
 	let gridSize: number;
+	let wantHashes: string[];
 
 	onMount(async () => {
 		await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -55,6 +57,7 @@
 		blankY = curY;
 
 		for (let i: number = 0; i < newState.length; i++) {
+			let word = '';
 			for (let j: number = 0; j < newState[i].length; j++) {
 				if (
 					(i === blankX && (j === blankY - 1 || j === blankY + 1)) ||
@@ -66,7 +69,11 @@
 				} else {
 					newState[i][j].tileType = defaultTile;
 				}
+				word += newState[i][j].letter;
 			}
+
+			const hash = sha256(word);
+			console.log(word, hash.toString());
 		}
 		state = newState;
 	};
@@ -111,6 +118,8 @@
 	.board {
 		border: 16px solid lightblue;
 		border-radius: 10px;
+		margin-left: auto;
+		margin-right: auto;
 	}
 
 	.loading {
