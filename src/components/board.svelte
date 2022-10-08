@@ -7,19 +7,28 @@
 	let blankX: number, blankY: number;
 	let gridSize: number;
 	let wantHashes: string[];
+	let err: string;
+
+	async function getResponse() {}
 
 	onMount(async () => {
-		await new Promise((resolve) => setTimeout(resolve, 2000));
+		const response = await fetch(
+			'https://gist.githubusercontent.com/psankar/0cd1d54a963abffbaaff7534fc433246/raw/ce495aea9639db76fb56403f244549772a30d0dd/aviyal.json',
+			{
+				method: 'GET'
+			}
+		);
 
-		const inputStr = [
-			['h', 'w', 's', 'b', 'g'],
-			['a', 'e', 'o', 'w', 'o'],
-			['m', 'l', 'r', 'e', 'a'],
-			['e', 'l', 'l', 'e', 'r'],
-			['o', 'd', 't', 'd', ' ']
-		];
+		if (!response.ok) {
+			err = `HTTP Error ${response.status}`;
+			return;
+		}
 
-		gridSize = inputStr.length;
+		const fetchedData = await response.json();
+		console.log(fetchedData);
+
+		wantHashes = fetchedData.wantHashes;
+		gridSize = fetchedData.inputStr.length;
 		blankX = gridSize - 1;
 		blankY = gridSize - 1;
 
@@ -28,16 +37,16 @@
 		for (let i = 0; i < gridSize; i++) {
 			let row = [];
 
-			for (let j = 0; j < inputStr[i].length; j++) {
+			for (let j = 0; j < fetchedData.inputStr[i].length; j++) {
 				if (
 					(i === blankX && (j === blankY - 1 || j === blankY + 1)) ||
 					(j === blankY && (i === blankX - 1 || i === blankX + 1))
 				) {
-					row.push({ letter: inputStr[i][j], tileType: clickableTile });
+					row.push({ letter: fetchedData.inputStr[i][j], tileType: clickableTile });
 				} else if (i == blankX && j == blankY) {
-					row.push({ letter: inputStr[i][j], tileType: blankTile });
+					row.push({ letter: fetchedData.inputStr[i][j], tileType: blankTile });
 				} else {
-					row.push({ letter: inputStr[i][j], tileType: defaultTile });
+					row.push({ letter: fetchedData.inputStr[i][j], tileType: defaultTile });
 				}
 			}
 			state.push(row);
@@ -69,7 +78,10 @@
 				} else {
 					newState[i][j].tileType = defaultTile;
 				}
-				word += newState[i][j].letter;
+
+				if (newState[i][j].letter !== ' ') {
+					word += newState[i][j].letter;
+				}
 			}
 
 			const hash = sha256(word);
@@ -98,7 +110,9 @@
 
 <svelte:window on:keydown={handleKeydown} />
 
-{#if state}
+{#if err}
+	<h1>Error getting game data: {err}</h1>
+{:else if state}
 	<table class="board">
 		{#each state as i, curX}
 			<tr>
