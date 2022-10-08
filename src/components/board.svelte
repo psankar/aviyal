@@ -8,12 +8,14 @@
 	let gridSize: number;
 	let wantHashes: string[];
 	let err: string;
+	let matched: boolean[];
+	let puzzleSolved: boolean;
 
 	async function getResponse() {}
 
 	onMount(async () => {
 		const response = await fetch(
-			'https://gist.githubusercontent.com/psankar/0cd1d54a963abffbaaff7534fc433246/raw/ce495aea9639db76fb56403f244549772a30d0dd/aviyal.json',
+			'https://gist.githubusercontent.com/psankar/0cd1d54a963abffbaaff7534fc433246/raw/e1a435fc37bf00f8e0a395bcb6896e521239c3af/aviyal.json',
 			{
 				method: 'GET'
 			}
@@ -25,7 +27,6 @@
 		}
 
 		const fetchedData = await response.json();
-		console.log(fetchedData);
 
 		wantHashes = fetchedData.wantHashes;
 		gridSize = fetchedData.inputStr.length;
@@ -33,6 +34,8 @@
 		blankY = gridSize - 1;
 
 		state = [];
+		matched = [];
+		puzzleSolved = false;
 
 		for (let i = 0; i < gridSize; i++) {
 			let row = [];
@@ -49,6 +52,7 @@
 					row.push({ letter: fetchedData.inputStr[i][j], tileType: defaultTile });
 				}
 			}
+			matched.push(false);
 			state.push(row);
 		}
 	});
@@ -64,6 +68,8 @@
 
 		blankX = curX;
 		blankY = curY;
+
+		let solved: boolean = true;
 
 		for (let i: number = 0; i < newState.length; i++) {
 			let word = '';
@@ -84,10 +90,20 @@
 				}
 			}
 
-			const hash = sha256(word);
-			console.log(word, hash.toString());
+			const hash = sha256(word).toString();
+
+			if (wantHashes.includes(hash)) {
+				matched[i] = true;
+			} else {
+				solved = false;
+				matched[i] = false;
+			}
 		}
 		state = newState;
+
+		if (solved) {
+			puzzleSolved = true;
+		}
 	};
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -121,9 +137,13 @@
 						<Tile letter={j.letter} tileType={j.tileType} {curX} {curY} cb={recalculate} />
 					</td>
 				{/each}
+				<td>{matched[curX] ? '✔️' : ''} </td>
 			</tr>
 		{/each}
 	</table>
+	{#if puzzleSolved}
+		<h1 class="h1">Congrats! You have correctly found all the words!!!</h1>
+	{/if}
 {:else}
 	<div class="loading" />
 {/if}
@@ -134,6 +154,10 @@
 		border-radius: 10px;
 		margin-left: auto;
 		margin-right: auto;
+	}
+
+	.h1 {
+		text-align: center;
 	}
 
 	.loading {
